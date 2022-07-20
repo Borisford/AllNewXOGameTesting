@@ -18,7 +18,7 @@ public class BaseTests {
 
     @AfterEach
     public void closeTest(){
-        //WebDriverManager.killCurrentDriver();
+        WebDriverManager.killCurrentDriver();
     }
 
 }

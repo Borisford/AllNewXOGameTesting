@@ -149,7 +149,11 @@ public class Steps {
         EndTheGameFront endTheGameFront = new EndTheGameFront();
         Assertions.assertTrue(driver.getTitle().toLowerCase(Locale.ROOT).contains(endTheGameFront.getName().toLowerCase(Locale.ROOT)));
         endTheGameFront.init();
-        Assertions.assertEquals(result, endTheGameFront.getMessage().substring(32));
+        if (result == null) {
+            Assertions.assertEquals("Игра закончилась вничью.", endTheGameFront.getMessage());
+        } else {
+            Assertions.assertEquals(result, endTheGameFront.getMessage().substring(32));
+        }
     }
 
     @Step("Проверить, что игра окончена")

@@ -4,6 +4,7 @@ import API.entities.PlayGroundEntity;
 import API.entities.PlayerEntity;
 import API.exeptions.IncorrectSignException;
 import API.exeptions.NoCellException;
+import API.steps.Steps;
 import gui.helpers.RandomName;
 import org.junit.jupiter.api.Test;
 import org.testng.Assert;
@@ -18,13 +19,8 @@ public class ApiTests {
     public void createPlayerTest() {
         String vovaName = RandomName.get();
 
-        PlayerEntity vova = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + vovaName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity vova = Steps.createPlayer(vovaName);
+
 
         Assert.assertEquals(vova.getName(), vovaName);
 
@@ -40,13 +36,7 @@ public class ApiTests {
     public void getPlayerTest() {
         String vovaName = RandomName.get();
 
-        PlayerEntity postVova = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + vovaName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity postVova = Steps.createPlayer(vovaName);
 
         Assert.assertEquals(postVova.getName(), vovaName);
 
@@ -93,250 +83,63 @@ public class ApiTests {
 
     @Test
     public void testSimpleMultiPlayerGameTest(){
-        String playerOneName = RandomName.get();
-        String playerTwoName = RandomName.get();
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerOne = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerOneName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerTwo = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerTwoName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayGroundEntity game = Steps.startMultiGame(playerOne, playerTwo);
 
-        PlayGroundEntity game = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/start/simple/multi?playerKey=" + playerOne.getPlayerKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerOne, 4, 'x');
 
-        game = given()
-                .when()
-                .put("http://localhost:9090/gameplay/rest/players?playerKey=" + playerTwo.getPlayerKey() +"&playGroundKey="+ game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerTwo, 0, '*');
 
-        String requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerOne.getId()+",\n" +
-                "    \"playerKey\" : "+playerOne.getPlayerKey()+",\n" +
-                "    \"cell\" : 4\n" +
-                "}";
-        given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(200);
+        game = Steps.doStep(game, playerOne, 6, 'x');
 
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerTwo, 2, '*');
 
-        Assert.assertEquals(game.getContent()[4], 'x');
+        game = Steps.doStep(game, playerOne, 8, 'x');
 
-        requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerTwo.getId()+",\n" +
-                "    \"playerKey\" : "+playerTwo.getPlayerKey()+",\n" +
-                "    \"cell\" : 0\n" +
-                "}";
+        game = Steps.doLastStep(game, playerTwo, 1, '*');
 
-        given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(200);
+        Steps.winnerCheck(game, playerTwo);
+    }
 
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+    @Test
+    public void testSimpleMultiPlayerGameTestDraw(){
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        Assert.assertEquals(game.getContent()[0], '*');
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
-        requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerOne.getId()+",\n" +
-                "    \"playerKey\" : "+playerOne.getPlayerKey()+",\n" +
-                "    \"cell\" : 6\n" +
-                "}";
-        given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(200);
+        PlayGroundEntity game = Steps.startMultiGame(playerOne, playerTwo);
 
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerOne, 4, 'x');
 
-        Assert.assertEquals(game.getContent()[6], 'x');
+        game = Steps.doStep(game, playerTwo, 0, '*');
 
-        requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerTwo.getId()+",\n" +
-                "    \"playerKey\" : "+playerTwo.getPlayerKey()+",\n" +
-                "    \"cell\" : 2\n" +
-                "}";
+        game = Steps.doStep(game, playerOne, 6, 'x');
 
-        given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(200);
+        game = Steps.doStep(game, playerTwo, 2, '*');
 
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerOne, 1, 'x');
 
-        Assert.assertEquals(game.getContent()[2], '*');
+        game = Steps.doStep(game, playerTwo, 7, '*');
 
-        requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerOne.getId()+",\n" +
-                "    \"playerKey\" : "+playerOne.getPlayerKey()+",\n" +
-                "    \"cell\" : 8\n" +
-                "}";
-        given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(200);
+        game = Steps.doStep(game, playerOne, 5, 'x');
 
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        game = Steps.doStep(game, playerTwo, 3, '*');
 
-        Assert.assertEquals(game.getContent()[8], 'x');
+        game = Steps.doLastStep(game, playerOne, 8, 'x');
 
-        requestBody = "{\n" +
-                "    \"playGroundId\" : "+game.getId()+",\n" +
-                "    \"playGroundKey\" : "+game.getPlayGroundKey()+",\n" +
-                "    \"playerId\" : "+playerTwo.getId()+",\n" +
-                "    \"playerKey\" : "+playerTwo.getPlayerKey()+",\n" +
-                "    \"cell\" : 1\n" +
-                "}";
-
-        String result = given()
-                .header("Content-type", "application/json")
-                .body(requestBody)
-                .when()
-                .post("http://localhost:9090/gameplay/rest/steps")
-                .then()
-                .log().body()
-                .statusCode(400)
-                .extract().asString();
-
-        Assert.assertEquals(result, "Игра закончилась победой игрока " + playerTwo.getName());
-
-        game = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/playGrounds/" + game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
-
-        Assert.assertEquals(game.getContent()[1], '*');
-
-        String winner = given()
-                .when()
-                .get("http://localhost:9090/gameplay/rest/winners/game/" + game.getId())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().asString();
-
-        Assert.assertEquals(winner, playerTwo.getName());
+        Steps.drawCheck(game);
     }
 
     @Test
     public void illegalCellTest() {
-        String playerOneName = RandomName.get();
-        String playerTwoName = RandomName.get();
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerOne = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerOneName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerTwo = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerTwoName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
-
-        PlayGroundEntity game = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/start/simple/multi?playerKey=" + playerOne.getPlayerKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
-
-        game = given()
-                .when()
-                .put("http://localhost:9090/gameplay/rest/players?playerKey=" + playerTwo.getPlayerKey() +"&playGroundKey="+ game.getPlayGroundKey())
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayGroundEntity.class);
+        PlayGroundEntity game = Steps.startMultiGame(playerOne, playerTwo);
 
         String requestBody = "{\n" +
                 "    \"playGroundId\" : "+game.getId()+",\n" +
@@ -361,24 +164,9 @@ public class ApiTests {
 
     @Test
     public void illegalGameNumberTest() {
-        String playerOneName = RandomName.get();
-        String playerTwoName = RandomName.get();
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerOne = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerOneName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
-
-        PlayerEntity playerTwo = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerTwoName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
         PlayGroundEntity game = given()
                 .when()
@@ -404,24 +192,9 @@ public class ApiTests {
 
     @Test
     public void illegalGameNumberTest2() {
-        String playerOneName = RandomName.get();
-        String playerTwoName = RandomName.get();
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerOne = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerOneName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
-
-        PlayerEntity playerTwo = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerTwoName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
         PlayGroundEntity game = given()
                 .when()
@@ -431,7 +204,7 @@ public class ApiTests {
                 .statusCode(200)
                 .extract().as(PlayGroundEntity.class);
 
-        String illegalGameNumber = playerOneName;
+        String illegalGameNumber = RandomName.get();
 
         String result = given()
                 .when()
@@ -447,24 +220,9 @@ public class ApiTests {
 
     @Test
     public void illegalGameNumberTest3() {
-        String playerOneName = RandomName.get();
-        String playerTwoName = RandomName.get();
+        PlayerEntity playerOne = Steps.createPlayer(RandomName.get());
 
-        PlayerEntity playerOne = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerOneName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
-
-        PlayerEntity playerTwo = given()
-                .when()
-                .post("http://localhost:9090/gameplay/rest/players?name=" + playerTwoName)
-                .then()
-                .log().body()
-                .statusCode(200)
-                .extract().as(PlayerEntity.class);
+        PlayerEntity playerTwo = Steps.createPlayer(RandomName.get());
 
         PlayGroundEntity game = given()
                 .when()
