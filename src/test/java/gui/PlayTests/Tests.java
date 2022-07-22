@@ -178,6 +178,21 @@ public class Tests  extends BaseTests {
     }
 
     @Test()
+    public void makeStepInNotFullGameTest() {
+        MainFront mainFront = new MainFront();
+        steps.goPage(mainFront);
+        AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
+        String nameOne = RandomName.get();
+        GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
+        String numberOne = steps.getPlayersKey(gamesStartFront);
+        YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
+        String gameNumber = yourStepFront.getPlayGroundKey();
+        steps.doStep(yourStepFront, "4", nameOne);
+        steps.messageCheck(yourStepFront, "Ждем других игроков");
+
+    }
+
+    @Test()
     public void GoPvPTestDraw() {
         MainFront mainFront = new MainFront();
         steps.goPage(mainFront);
