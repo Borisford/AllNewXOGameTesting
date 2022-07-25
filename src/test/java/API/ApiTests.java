@@ -176,7 +176,7 @@ public class ApiTests {
                 .statusCode(200)
                 .extract().as(PlayGroundEntity.class);
 
-        String illegalGameNumber = game.getPlayGroundKey() + "1";
+        String illegalGameNumber = game.getPlayGroundKey() + "111111111111111111111";
 
         String result = given()
                 .when()

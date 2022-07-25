@@ -153,7 +153,7 @@ public class Tests  extends BaseTests {
         String nameTwo = RandomName.get();
         gamesStartFront = steps.addPlayer(addPlayerFront, nameTwo);
         String numberTwo = steps.getPlayersKey(gamesStartFront);
-        GameNumberFront gameNumberFront = steps.goIllegalGame(gamesStartFront, gameNumber + 1);
+        GameNumberFront gameNumberFront = steps.goIllegalGame(gamesStartFront, gameNumber + "11111111111111111111111111");
         steps.messageCheck(gameNumberFront, "Формат номера игры некорректен");
     }
 
