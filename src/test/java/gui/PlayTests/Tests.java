@@ -1,15 +1,12 @@
 package gui.PlayTests;
 
 
-import gui.driver.WebDriverManager;
-import gui.helpers.CustomUtils;
 import gui.helpers.RandomName;
 import gui.interfaces.pages.*;
 import gui.steps.Steps;
 import io.qameta.allure.Feature;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -95,10 +92,6 @@ public class Tests  extends BaseTests {
         steps.goPage(mainFront);
         AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
         String nameOne = RandomName.get();
-        GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
-        String numberOne = steps.getPlayersKey(gamesStartFront);
-        YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
-        String gameNumber = yourStepFront.getPlayGroundKey();
         steps.goPageInNewTab(mainFront);
         steps.goAddPlayer(mainFront);
         steps.addNextPlayer(addPlayerFront, nameOne);
@@ -125,14 +118,12 @@ public class Tests  extends BaseTests {
         AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
         String nameOne = RandomName.get();
         GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
-        String numberOne = steps.getPlayersKey(gamesStartFront);
         YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
         String gameNumber = yourStepFront.getPlayGroundKey();
         steps.goPageInNewTab(mainFront);
         steps.goAddPlayer(mainFront);
         String nameTwo = RandomName.get();
         gamesStartFront = steps.addPlayer(addPlayerFront, nameTwo);
-        String numberTwo = steps.getPlayersKey(gamesStartFront);
         GameNumberFront gameNumberFront = steps.goIllegalGame(gamesStartFront, gameNumber.substring(1));
         steps.messageCheck(gameNumberFront, "Игра не найдена");
     }
@@ -145,14 +136,12 @@ public class Tests  extends BaseTests {
         AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
         String nameOne = RandomName.get();
         GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
-        String numberOne = steps.getPlayersKey(gamesStartFront);
         YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
         String gameNumber = yourStepFront.getPlayGroundKey();
         steps.goPageInNewTab(mainFront);
         steps.goAddPlayer(mainFront);
         String nameTwo = RandomName.get();
         gamesStartFront = steps.addPlayer(addPlayerFront, nameTwo);
-        String numberTwo = steps.getPlayersKey(gamesStartFront);
         GameNumberFront gameNumberFront = steps.goIllegalGame(gamesStartFront, gameNumber + "11111111111111111111111111");
         steps.messageCheck(gameNumberFront, "Формат номера игры некорректен");
     }
@@ -165,14 +154,12 @@ public class Tests  extends BaseTests {
         AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
         String nameOne = RandomName.get();
         GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
-        String numberOne = steps.getPlayersKey(gamesStartFront);
         YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
         String gameNumber = yourStepFront.getPlayGroundKey();
         steps.goPageInNewTab(mainFront);
         steps.goAddPlayer(mainFront);
         String nameTwo = RandomName.get();
         gamesStartFront = steps.addPlayer(addPlayerFront, nameTwo);
-        String numberTwo = steps.getPlayersKey(gamesStartFront);
         GameNumberFront gameNumberFront = steps.goIllegalGame(gamesStartFront, gameNumber + nameOne);
         steps.messageCheck(gameNumberFront, "Формат номера игры некорректен");
     }
@@ -184,9 +171,7 @@ public class Tests  extends BaseTests {
         AddPlayerFront addPlayerFront = steps.goAddPlayer(mainFront);
         String nameOne = RandomName.get();
         GamesStartFront gamesStartFront = steps.addPlayer(addPlayerFront, nameOne);
-        String numberOne = steps.getPlayersKey(gamesStartFront);
         YourStepFront yourStepFront = steps.goMultiStart(gamesStartFront);
-        String gameNumber = yourStepFront.getPlayGroundKey();
         steps.doStep(yourStepFront, "4", nameOne);
         steps.messageCheck(yourStepFront, "Ждем других игроков");
 
