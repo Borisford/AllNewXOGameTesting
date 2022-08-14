@@ -27,7 +27,7 @@ public class Tests  extends BaseTests {
     @Feature("Проверка работоспособности игры")
     //@DisplayName("Открытите сайта")
     @Test()
-    public void SmokeTest() {
+    public void smokeTest() {
         MainFront mainFront = new MainFront();
         steps.goPage(mainFront);
     }

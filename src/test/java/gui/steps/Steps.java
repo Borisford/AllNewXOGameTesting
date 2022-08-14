@@ -10,8 +10,6 @@ import io.qameta.allure.Step;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WindowType;
-import org.testng.Assert;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +75,7 @@ public class Steps {
     @Step("Полвторно создать игрока с именем {name}")
     public void addNextPlayer(AddPlayerFront addPlayerFront, String name) {
         addPlayerFront.addPlayer(name);
-        Assert.assertEquals(addPlayerFront.getMessage(), "Имя "+name+" уже используется.");
+        Assertions.assertEquals(addPlayerFront.getMessage(), "Имя "+name+" уже используется.");
     }
 
     @Step("Начать одиночную игру")

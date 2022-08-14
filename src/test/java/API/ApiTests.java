@@ -2,12 +2,11 @@ package API;
 
 import API.entities.PlayGroundEntity;
 import API.entities.PlayerEntity;
-import API.exeptions.IncorrectSignException;
-import API.exeptions.NoCellException;
 import API.steps.Steps;
 import gui.helpers.RandomName;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.testng.Assert;
+
 
 import java.util.Random;
 
@@ -22,7 +21,7 @@ public class ApiTests {
         PlayerEntity vova = Steps.createPlayer(vovaName);
 
 
-        Assert.assertEquals(vova.getName(), vovaName);
+        Assertions.assertEquals(vova.getName(), vovaName);
 
         given()
                 .when()
@@ -38,7 +37,7 @@ public class ApiTests {
 
         PlayerEntity postVova = Steps.createPlayer(vovaName);
 
-        Assert.assertEquals(postVova.getName(), vovaName);
+        Assertions.assertEquals(postVova.getName(), vovaName);
 
         PlayerEntity getVova = given()
                 .when()
@@ -48,8 +47,8 @@ public class ApiTests {
                 .statusCode(200)
                 .extract().as(PlayerEntity.class);
 
-        Assert.assertEquals(postVova.getName(), getVova.getName());
-        Assert.assertEquals(postVova.getId(), getVova.getId());
+        Assertions.assertEquals(postVova.getName(), getVova.getName());
+        Assertions.assertEquals(postVova.getId(), getVova.getId());
     }
 
     @Test
@@ -63,7 +62,7 @@ public class ApiTests {
                 .extract()
                 .asString();
 
-        Assert.assertTrue(result.startsWith("Игра закончилась"));
+        Assertions.assertTrue(result.startsWith("Игра закончилась"));
 
 
     }
@@ -78,7 +77,7 @@ public class ApiTests {
                 .statusCode(400)
                 .extract().asString();
 
-        Assert.assertTrue(result.startsWith("Игра закончилась"));
+        Assertions.assertTrue(result.startsWith("Игра закончилась"));
     }
 
     @Test
@@ -159,7 +158,7 @@ public class ApiTests {
                 .statusCode(400)
                 .extract().asString();
 
-        Assert.assertEquals(result, "В игре нет такой ячейки");
+        Assertions.assertEquals(result, "В игре нет такой ячейки");
     }
 
     @Test
@@ -187,7 +186,7 @@ public class ApiTests {
                 .extract().asString();
 
 
-        Assert.assertEquals(result, "Формат номера игры некорректен");
+        Assertions.assertEquals(result, "Формат номера игры некорректен");
     }
 
     @Test
@@ -215,7 +214,7 @@ public class ApiTests {
                 .extract().asString();
 
 
-        Assert.assertEquals(result, "Формат номера игры некорректен");
+        Assertions.assertEquals(result, "Формат номера игры некорректен");
     }
 
     @Test
@@ -247,6 +246,6 @@ public class ApiTests {
                 .extract().asString();
 
 
-        Assert.assertEquals(result, "Игра не найдена");
+        Assertions.assertEquals(result, "Игра не найдена");
     }
 }
